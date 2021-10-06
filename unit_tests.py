@@ -95,6 +95,42 @@ class TestGameBoard(unittest.TestCase):
         self.assertTrue(len(elements) == len(set((tuple(elem) for elem in elements))))
         self.assertTrue(len(elements) == 81)
 
+    def test_occupancy(self):
+        """ The occupancy function returns how much of the grid is occupied.
+        """
+        board = GameBoard()
+
+        self.assertEqual(board.occupancy(), 0)
+
+        board = GameBoard()
+        board.random_init(9)
+        self.assertAlmostEqual(board.occupancy(), 0.1, 1)
+
+        board = GameBoard()
+        board.random_init(18)
+        self.assertAlmostEqual(board.occupancy(), 0.2, 1)
+
+    def test_erase_random(self):
+        """ Random erasure function should do what we want it to.
+
+        E.g. if we add only one element, it should remove it.
+        """
+        board = GameBoard()
+
+        board.random_init(1)
+        self.assertGreater(board.occupancy(), 0)
+
+        board.erase_random()
+        self.assertEqual(board.occupancy(), 0)
+
+        board = GameBoard()
+        board.random_init(5)
+
+        for _ in range(5):
+            board.erase_random()
+
+        self.assertEqual(board.occupancy(), 0)
+
 
 class TestSolvers(unittest.TestCase):
     # A constant valid board. I absolutely did not copy this by hand from an example online.

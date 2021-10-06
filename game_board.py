@@ -116,9 +116,26 @@ class GameBoard:
             self._board[i][j] = self._board[i][j] + 1
 
     def erase(self, i, j):
-        """ Erases a certain value
+        """ Erases a certain value.
         """
         self._board[i][j] = None
+
+    def erase_random(self):
+        """ Erases a random value from the board.
+
+        TODO: There's probably more efficient ways to implement this functionality.
+        """
+        # Let's not even try if there is nothing in the board.
+        if self.occupancy() == 0:
+            return
+
+        # Explicitly look for an occupied element to erase.
+        val = None
+        while val == None:
+            i, j = self.random_board_iterator().__next__()
+            val = self.value(i, j)
+
+        self.erase(i, j)
 
     def is_solved(self):
         """ Returns whether the current board is solved.
@@ -160,6 +177,21 @@ class GameBoard:
 
         return True
 
+    def occupancy(self):
+        """ Returns the fraction of the total size of the board that is filled in.
+        """
+        # Total number of cells
+        total = self._board_size ** 2
+
+        # Compute number of occupied cells
+        # TODO: there are certainly better ways to do this.
+        occupied = 0
+        for i, j in self.board_iterator():
+            if self.value(i, j) != None:
+                occupied += 1
+
+        return occupied/total
+
     def printable(self):
         """ Generates a neat string that represents the board
         """
@@ -174,3 +206,6 @@ class GameBoard:
                 output += "\n"
 
         return output
+
+    def __repr__(self):
+        return self.printable()
