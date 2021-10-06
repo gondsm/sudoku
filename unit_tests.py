@@ -5,7 +5,7 @@ import unittest
 from game_board import GameBoard
 import solvers
 
-class TestStringMethods(unittest.TestCase):
+class TestGameBoard(unittest.TestCase):
     # A constant valid board. I absolutely did not copy this by hand from an example online.
     valid_board = [
         [5, 3, 4, 6, 7, 8, 9, 1, 2],
@@ -15,19 +15,6 @@ class TestStringMethods(unittest.TestCase):
         [4, 2, 6, 8, 5, 3, 7, 9, 1],
         [7, 1, 3, 9, 2, 4, 8, 5, 6],
         [9, 6, 1, 5, 3, 7, 2, 8, 4],
-        [2, 8, 7, 4, 1, 9, 6, 3, 5],
-        [3, 4, 5, 2, 8, 6, 1, 7, 9],
-    ]
-
-    # The same board with a few elements removed, ripe for solving.
-    partial_board = [
-        [5, None, 4, 6, 7, 8, 9, 1, 2],
-        [6, 7, None, 1, 9, 5, None, 4, 8],
-        [1, 9, 8, 3, 4, 2, 5, 6, None],
-        [8, None, 9, 7, None, 1, 4, 2, 3],
-        [4, 2, 6, 8, 5, 3, 7, 9, 1],
-        [7, 1, 3, 9, 2, 4, 8, None, 6],
-        [9, 6, 1, None, 3, 7, 2, 8, 4],
         [2, 8, 7, 4, 1, 9, 6, 3, 5],
         [3, 4, 5, 2, 8, 6, 1, 7, 9],
     ]
@@ -67,6 +54,15 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertFalse(board.is_complete())
 
+    def test_empty_board(self):
+        """ An empty board cannot be completed or solved.
+        """
+        board = GameBoard()
+
+        self.assertFalse(board.is_solved())
+        self.assertTrue(board.is_valid())
+        self.assertFalse(board.is_complete())
+
     def test_random_board(self):
         """ Test generating a random board.
 
@@ -80,6 +76,16 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(board.is_valid())
         self.assertTrue(board.is_complete())
 
+    def test_random_partial_board(self):
+        """ We can specify not wanting to initialise the whole board.
+        """
+        board = GameBoard()
+        board.random_init(50)
+
+        self.assertFalse(board.is_solved())
+        self.assertFalse(board.is_valid())
+        self.assertFalse(board.is_complete())
+
     def test_random_board_iterator(self):
         """ Test generating a random board iterator.
         """
@@ -88,6 +94,34 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertTrue(len(elements) == len(set((tuple(elem) for elem in elements))))
         self.assertTrue(len(elements) == 81)
+
+
+class TestSolvers(unittest.TestCase):
+    # A constant valid board. I absolutely did not copy this by hand from an example online.
+    valid_board = [
+        [5, 3, 4, 6, 7, 8, 9, 1, 2],
+        [6, 7, 2, 1, 9, 5, 3, 4, 8],
+        [1, 9, 8, 3, 4, 2, 5, 6, 7],
+        [8, 5, 9, 7, 6, 1, 4, 2, 3],
+        [4, 2, 6, 8, 5, 3, 7, 9, 1],
+        [7, 1, 3, 9, 2, 4, 8, 5, 6],
+        [9, 6, 1, 5, 3, 7, 2, 8, 4],
+        [2, 8, 7, 4, 1, 9, 6, 3, 5],
+        [3, 4, 5, 2, 8, 6, 1, 7, 9],
+    ]
+
+    # The same board with a few elements removed, ripe for solving.
+    partial_board = [
+        [5, None, 4, 6, 7, 8, 9, 1, 2],
+        [6, 7, None, 1, 9, 5, None, 4, 8],
+        [1, 9, 8, 3, 4, 2, 5, 6, None],
+        [8, None, 9, 7, None, 1, 4, 2, 3],
+        [4, 2, 6, 8, 5, 3, 7, 9, 1],
+        [7, 1, 3, 9, 2, 4, 8, None, 6],
+        [9, 6, 1, None, 3, 7, 2, 8, 4],
+        [2, 8, 7, 4, 1, 9, 6, 3, 5],
+        [3, 4, 5, 2, 8, 6, 1, 7, 9],
+    ]
 
     def test_generate_from_empty(self):
         """ If we solve an empty board, it should generate a solved board.
@@ -110,7 +144,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(solved_board.is_solved)
         self.assertEqual(board._board, self.partial_board)
         self.assertEqual(solved_board._board, self.valid_board)
-
 
 if __name__ == "__main__":
     unittest.main()

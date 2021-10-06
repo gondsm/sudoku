@@ -82,13 +82,16 @@ class GameBoard:
             for j in range(j_corner, j_corner + 3):
                 yield self.value(i, j)
 
-    def random_init(self):
+    def random_init(self, n_elems=81):
         """ Initialises the board with random values.
 
+        Only initialises n_elems elements, in random positions.
         Not guaranteed to be a valid solution.
         """
-        # TODO: actually make it a valid solution?
-        for val, (i, j) in enumerate(self.board_iterator()):
+        for val, (i, j) in enumerate(self.random_board_iterator()):
+            if val >= n_elems:
+                break
+
             self.value(i, j, random.randint(1, 9))
 
     def value(self, i, j, value=None):
