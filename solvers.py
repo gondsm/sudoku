@@ -1,4 +1,5 @@
 import copy
+from collections import defaultdict
 
 from game_board import GameBoard
 
@@ -10,7 +11,20 @@ def solve(input_board, max_iterations):
 
     The idea is that it'll call whatever solver happens to be the best at some point, depending on what's implemented.
     """
-    return _backtrack(input_board, max_iterations)
+    # Define a pipeline of solvers to use. Since the intermediate solutions of each solver should be valid, the
+    # intermediate results can be fed into one another.
+    solvers = [
+        _deductive,
+        _backtrack
+    ]
+
+    intermediate_board = input_board
+    for solver in solvers:
+        intermediate_board = solver(intermediate_board, max_iterations)
+        if intermediate_board.is_solved():
+            break
+
+    return intermediate_board
 
 
 ########################################################################################################################
@@ -109,5 +123,68 @@ def _backtrack(input_board=GameBoard(), max_iterations=100000):
         advance()
 
     print(f"Solved in {iterations} iterations. Max iterations reached?", iterations == max_iterations)
+
+    return board
+
+
+def _deductive(input_board, max_iterations):
+    """ Implements a deductive method for solving the given board.
+
+    This is based on the common heuristic everyone uses (I assume) where we pencil in the possible values for each cell
+    and then unravel the puzzle from there.
+    """
+    # Duplicate the input board so we don't change it in place:
+    board = copy.deepcopy(input_board)
+
+    # We'll keep the pencilled-in numbers here
+    pencil_board = defaultdict(list)
+    valid_values = board._valid_values
+
+    # Sub-functions
+    def generate_pencil_board():
+        for i, j in board.board_iterator():
+            # Only work on empty cells
+            if board.value(i, j) == None:
+                # Iterate over all valid values
+                for val in valid_values:
+                    # Try adding it...
+                    board.value(i, j, val)
+
+                    # ... if it works, it's a possible value
+                    if board.is_valid():
+                        key = (i, j)
+                        pencil_board[key].append(val)
+
+                    # And then remove it again
+                    board.erase(i, j)
+
+    iterations = 0
+    while iterations < max_iterations and not board.is_solved():
+        generate_pencil_board()
+
+        # Iterate over the pencilled board
+        for (i, j), values in pencil_board.items():
+            # If there's only one possible value for a given cell, we write it in
+            if len(values) == 1:
+                board.value(i, j, values[0])
+                continue
+
+            # If the current value is the only possible position for this value in this sub-board, we write it in
+            sub_board_positions = board.sub_board_positions(*board.sub_board_from_indices(i, j))
+            for value in values:
+                # Evaluate whether the value is the only possibility for this value in this sub-board
+                only_possibility_in_sub_board = True
+                for sub_i, sub_j in sub_board_positions:
+                    # Only check the pencil board if the key exists, since accessing the defaultdict on a non-existing
+                    # key will add it to the dict and, thus, crash us as we're changing the dict mid-iteration.
+                    if (sub_i, sub_j) in pencil_board.keys():
+                        only_possibility_in_sub_board = not (value in pencil_board[(sub_i, sub_j)])
+
+                # Write the value in and break early since we won't have another value for the current cell
+                if only_possibility_in_sub_board:
+                    board.value(i, j, value)
+                    break
+
+        iterations += 1
 
     return board

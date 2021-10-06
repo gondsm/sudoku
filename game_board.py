@@ -82,6 +82,13 @@ class GameBoard:
             for j in range(self._sub_board_size):
                 yield [i, j]
 
+    def sub_board_from_indices(self, i, j):
+        """ Returns the sub-board that corresponds to the given board coordinates.
+
+        E.g. if given 0, 1, it will return 0, 0, which are the coordinates of the top-left sub-board.
+        """
+        return int(i/3), int(j/3)
+
     def line(self, i):
         """ Returns the values for the given line
         """
@@ -107,6 +114,15 @@ class GameBoard:
         for i in range(i_corner, i_corner + 3):
             for j in range(j_corner, j_corner + 3):
                 yield self.value(i, j)
+
+    def sub_board_positions(self, i_sub_board, j_sub_board):
+        """ Returns the positions (coordinates) for the given sub-board.
+        """
+        i_corner = i_sub_board * 3
+        j_corner = j_sub_board * 3
+        for i in range(i_corner, i_corner + 3):
+            for j in range(j_corner, j_corner + 3):
+                yield (i, j)
 
     def random_init(self, n_elems=81, fixed=True):
         """ Initialises the board with random values.
