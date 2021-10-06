@@ -14,10 +14,11 @@ class GameBoard:
     _sub_board_size = 3
     _valid_values = list(range(1, 10))
 
-    # Initialise the board as empty
-    _board = [
-            [None, None, None, None, None, None, None, None, None] for i in range(9)
-        ]
+    def __init__(self):
+        # Initialise the board as empty
+        self._board = [
+                [None, None, None, None, None, None, None, None, None] for i in range(9)
+            ]
 
     def board_iterator(self):
         """ Returns an iterator that goes over the whole board.
