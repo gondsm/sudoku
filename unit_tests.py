@@ -100,12 +100,15 @@ class TestStringMethods(unittest.TestCase):
 
         The solved board should be equal to the valid board, since I didn't remove enough elements to generate a
         multi-solution problem.
+
+        The original board should remain unchanged, which is useful e.g. for benchmarking solvers.
         """
         board = GameBoard()
         board._board = copy.deepcopy(self.partial_board)
         solved_board = solvers.backtrack(board)
 
         self.assertTrue(solved_board.is_solved)
+        self.assertEqual(board._board, self.partial_board)
         self.assertEqual(solved_board._board, self.valid_board)
 
 
