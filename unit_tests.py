@@ -2,6 +2,7 @@ import copy
 
 # Local stuff:
 from game_board import GameBoard
+import solvers
 
 # TODO: re-write using unittest
 
@@ -91,6 +92,41 @@ def test():
     print("Does this list contain the expected number of elements (9x9 = 81)?")
     print(len(elements) == 81)
 
+    # Test generating a board by solving an empty board
+    print("Generating a board...")
+    generated_board = solvers.backtrack()
+    print("Here's a generated board:")
+    print(generated_board.printable())
+
+    print("Is this board solved? It should be.")
+    print(generated_board.is_solved())
+    
+    # Solving a partial board
+    partial_board = [
+        [5, None, 4, 6, 7, 8, 9, 1, 2],
+        [6, 7, None, 1, 9, 5, None, 4, 8],
+        [1, 9, 8, 3, 4, 2, 5, 6, None],
+        [8, None, 9, 7, None, 1, 4, 2, 3],
+        [4, 2, 6, 8, 5, 3, 7, 9, 1],
+        [7, 1, 3, 9, 2, 4, 8, None, 6],
+        [9, 6, 1, None, 3, 7, 2, 8, 4],
+        [2, 8, 7, 4, 1, 9, 6, 3, 5],
+        [3, 4, 5, 2, 8, 6, 1, 7, 9],
+    ]
+
+    # Sneak in the board and solve it
+    board._board = copy.deepcopy(partial_board)
+
+    print("Here's an incomplete board:")
+    print(board.printable())
+
+    solved_board = solvers.backtrack(board)
+    
+    print("Here's the solved board:")
+    print(solved_board.printable())
+
+    print("Is this board solved? It should be.")
+    print(solved_board.is_solved())
 
 if __name__ == "__main__":
     test()
