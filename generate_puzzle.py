@@ -20,7 +20,7 @@ def generate_puzzle(seed_size, max_solver_iterations, max_attempts, final_size):
         seed_board = GameBoard()
         seed_board.random_init(seed_size)
 
-        solved_board = solvers.backtrack(seed_board, max_solver_iterations)
+        solved_board = solvers.solve(seed_board, max_solver_iterations)
 
         if solved_board.is_solved():
             break

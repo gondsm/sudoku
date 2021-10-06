@@ -2,7 +2,21 @@ import copy
 
 from game_board import GameBoard
 
-def backtrack(input_board=GameBoard(), max_iterations=100000):
+########################################################################################################################
+# PUBLIC INTERFACE
+########################################################################################################################
+def solve(input_board, max_iterations):
+    """ Entry point to the solvers. Just calling this function, by default, should yield "good" results.
+
+    The idea is that it'll call whatever solver happens to be the best at some point, depending on what's implemented.
+    """
+    return _backtrack(input_board, max_iterations)
+
+
+########################################################################################################################
+# INTERNALS (here be dragons)
+########################################################################################################################
+def _backtrack(input_board=GameBoard(), max_iterations=100000):
     """ Use the backtrack method to solve a board.
 
     The backtrack method is usually described/implemented as a recursive call, but I'm allergic to recursive programs.
