@@ -1,3 +1,4 @@
+## Introduction
 A simple Sudoku generator and solver. Something that takes this:
 
 ```
@@ -30,7 +31,15 @@ and turns it into this:
 3 4 5 | 2 8 6 | 1 7 9
 ```
 
-For now, just run the unit tests:
+## Usage
+
+You can try to generate puzzles by running
+
+```
+python generate_puzzle.py
+```
+
+or just run the unit tests:
 
 ```
 python unit_tests.py
