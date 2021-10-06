@@ -34,17 +34,7 @@ def generate_puzzle(seed_size, max_solver_iterations, max_attempts, final_size):
         while puzzle_board.occupancy() > final_size:
             puzzle_board.erase_random()
 
-    if puzzle_board != None:
-        print("Seed board:")
-        print(seed_board)
-
-        print("Puzzle board:")
-        print(puzzle_board)
-
-        print("Solution board:")
-        print(solved_board)
-    else:
-        print(f"Could not generate puzzle within {attempts} attempts!")
+    return [seed_board, puzzle_board, solved_board]
 
 
 def parse_args():
@@ -60,6 +50,22 @@ def parse_args():
 
     return parser.parse_args()
 
+
+def print_results(seed_board, puzzle_board, solved_board):
+    if puzzle_board != None:
+        print("Seed board:")
+        print(seed_board)
+
+        print("Puzzle board:")
+        print(puzzle_board)
+
+        print("Solution board:")
+        print(solved_board)
+    else:
+        print(f"Could not generate puzzle!")
+
+
 if __name__ == "__main__":
     args = parse_args()
-    generate_puzzle(args.seed_size, args.max_solver_iterations, args.max_attempts, args.final_size)
+    boards = generate_puzzle(args.seed_size, args.max_solver_iterations, args.max_attempts, args.final_size)
+    print_results(*boards)
