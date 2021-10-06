@@ -10,15 +10,19 @@ class GameBoard:
     * Producing a printable board.
     """
 
+    # Constants
     _board_size = 9
     _sub_board_size = 3
     _valid_values = list(range(1, 10))
 
     def __init__(self):
-        # Initialise the board as empty
+        # Initialise the board itself as empty
         self._board = [
                 [None, None, None, None, None, None, None, None, None] for i in range(9)
             ]
+
+        # Initialise the list of fixed positions as empty as well
+        self._fixed_positions = []
 
     def board_iterator(self):
         """ Returns an iterator that goes over the whole board.
@@ -82,10 +86,11 @@ class GameBoard:
             for j in range(j_corner, j_corner + 3):
                 yield self.value(i, j)
 
-    def random_init(self, n_elems=81):
+    def random_init(self, n_elems=81, fixed=True):
         """ Initialises the board with random values.
 
         Only initialises n_elems elements, in random positions.
+        fixed indicates whether the initialised values should then be considered fixed positions.
         Not guaranteed to be a valid solution.
         """
         for val, (i, j) in enumerate(self.random_board_iterator()):
@@ -93,6 +98,9 @@ class GameBoard:
                 break
 
             self.value(i, j, random.randint(1, 9))
+
+            if fixed:
+                self._fixed_positions.append([i, j])
 
     def value(self, i, j, value=None):
         """ Accesses or sets a value.
@@ -106,6 +114,11 @@ class GameBoard:
             self._board[i][j] = value
 
         return copy.copy(self._board[i][j])
+
+    def is_fixed(self, i, j):
+        """ Returns whether the given position contains a value that should not (or cannot) be changed.
+        """
+        return [i, j] in self._fixed_positions
 
     def increment(self, i, j):
         """ Increments the given cell.

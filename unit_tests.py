@@ -131,6 +131,35 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(board.occupancy(), 0)
 
+    def test_fixed_positions(self):
+        """ Elements added as fixed should be reported as such.
+        """
+        board = GameBoard()
+        board.random_init(1, True)
+
+        count = 0
+        for i, j in board.board_iterator():
+            if board.value(i, j) != None:
+                count += 1
+                self.assertTrue(board.is_fixed(i, j))
+
+        self.assertEqual(count, 1)
+
+    def test_non_fixed_positions(self):
+        """ Elements added as non-fixed should be reported as such.
+        """
+        board = GameBoard()
+        board.random_init(1, False)
+
+        count = 0
+        for i, j in board.board_iterator():
+            if board.value(i, j) != None:
+                count += 1
+                self.assertFalse(board.is_fixed(i, j))
+
+        self.assertEqual(count, 1)
+
+
 
 class TestSolvers(unittest.TestCase):
     # A constant valid board. I absolutely did not copy this by hand from an example online.

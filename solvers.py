@@ -20,7 +20,7 @@ def backtrack(input_board=GameBoard(), max_iterations=100000):
     # Duplicate the input board so we don't change it in place:
     board = copy.deepcopy(input_board)
 
-    # State
+    # Initilise state
     cells = list(board.board_iterator())
     current_cell_idx = 0
     iterations = 0
@@ -49,18 +49,22 @@ def backtrack(input_board=GameBoard(), max_iterations=100000):
 
     def backtrack():
         nonlocal current_cell_idx
-        # Clear cell
+        # Clear cell and backtrack
         i, j = cells[current_cell_idx]
         board.erase(i, j)
-
-        # Backtrack and increment
         current_cell_idx -= 1
-        i, j = cells[current_cell_idx]
-        board.increment(i, j)
+
+        # Skip over fixed cells
+        while current_cell_idx > 0 and board.is_fixed(*cells[current_cell_idx]):
+            current_cell_idx -= 1
 
     def advance():
         nonlocal current_cell_idx
         current_cell_idx += 1
+
+        # Skip over fixed cells
+        while current_cell_idx < len(cells) and board.is_fixed(*cells[current_cell_idx]):
+            current_cell_idx += 1
 
     # The main loop is split into three essential clauses:
     # * If the value is empty, it's initialised as 1.
@@ -79,6 +83,7 @@ def backtrack(input_board=GameBoard(), max_iterations=100000):
         # If the cell or board is not a valid value anymore, we erase it and move back
         if curr_value not in board._valid_values:
             backtrack()
+            increment()
             continue
 
         # If the current value is a valid number, we increment it
