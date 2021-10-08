@@ -41,7 +41,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Generate a Sudoku puzzle.')
     parser.add_argument("--seed_size", type=int, default=10,
                         help="number of random values to seed into the board")
-    parser.add_argument("--max_solver_iterations", type=int, default=5000,
+    parser.add_argument("--max_solver_iterations", type=int, default=10000,
                         help="maximum number of iterations we'll allow the underlying solver")
     parser.add_argument("--max_attempts", type= int, default=100,
                         help="maximmum number of seed->solve loops we'll run until we find a viable puzzle")
