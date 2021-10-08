@@ -30,7 +30,19 @@ def solve(input_board, max_iterations):
 ########################################################################################################################
 # INTERNALS (here be dragons)
 ########################################################################################################################
-def _backtrack(input_board=GameBoard(), max_iterations=100000):
+def report_start(solver_name, occupancy):
+    print(f"[{solver_name}] starting. Starting board occupancy at {occupancy:.2f}.")
+
+def report_progress(solver_name, iterations, max_iterations):
+    if iterations % 100 == 0:
+        print(f"[{solver_name}]: {(iterations/max_iterations)*100:.2f}% of max_iterations.", end="\r")
+
+
+def report_result(solver_name, solved, occupancy, reached_max_iterations):
+    print(f"[{solver_name}] finished. Solved? {solved}. Final occupancy: {occupancy:.2f}. Reached maximum iterations? {reached_max_iterations}")
+
+
+def _backtrack(input_board, max_iterations):
     """ Use the backtrack method to solve a board.
 
     The backtrack method is usually described/implemented as a recursive call, but I'm allergic to recursive programs.
@@ -49,6 +61,7 @@ def _backtrack(input_board=GameBoard(), max_iterations=100000):
     board = copy.deepcopy(input_board)
 
     # Initilise state
+    report_start("Backtrack", board.occupancy())
     cells = list(board.board_iterator())
     current_cell_idx = 0
     iterations = 0
@@ -59,13 +72,6 @@ def _backtrack(input_board=GameBoard(), max_iterations=100000):
         val = board.value(i, j)
 
         return val
-
-    def report_progress():
-        nonlocal iterations
-        iterations += 1
-
-        if iterations % 100 == 0:
-            print(f"Solving. {(iterations/max_iterations)*100:.2f}% of max_iterations.", end="\r")
 
     def initialise():
         i, j = cells[current_cell_idx]
@@ -100,8 +106,9 @@ def _backtrack(input_board=GameBoard(), max_iterations=100000):
     # * If the board is not valid, we increment the current value.
     # If none of these clauses get triggered, we simply move on to the next cell.
     while not board.is_solved() and iterations < max_iterations:
+        iterations += 1
         curr_value = get_current_value()
-        report_progress()
+        report_progress("Backtrack", iterations, max_iterations)
 
         # If the cell is empty, we set it to 1 and move on
         if curr_value == None:
@@ -122,7 +129,7 @@ def _backtrack(input_board=GameBoard(), max_iterations=100000):
         # And if the board remains valid, we move on
         advance()
 
-    print(f"Solved in {iterations} iterations. Max iterations reached?", iterations == max_iterations)
+    report_result("Backtrack", board.is_solved(), board.occupancy(), iterations == max_iterations)
 
     return board
 
@@ -135,6 +142,7 @@ def _deductive(input_board, max_iterations):
     """
     # Duplicate the input board so we don't change it in place:
     board = copy.deepcopy(input_board)
+    report_start("Deductive", board.occupancy())
 
     # We'll keep the pencilled-in numbers here
     pencil_board = defaultdict(list)
@@ -142,6 +150,7 @@ def _deductive(input_board, max_iterations):
 
     # Sub-functions
     def generate_pencil_board():
+        print("[Deductive] solver generating pencil board.")
         for i, j in board.board_iterator():
             # Only work on empty cells
             if board.value(i, j) == None:
@@ -160,6 +169,8 @@ def _deductive(input_board, max_iterations):
 
     iterations = 0
     while iterations < max_iterations and not board.is_solved():
+        iterations += 1
+        report_progress("Deductive", iterations, max_iterations)
         generate_pencil_board()
 
         # Iterate over the pencilled board
@@ -185,6 +196,6 @@ def _deductive(input_board, max_iterations):
                     board.value(i, j, value)
                     break
 
-        iterations += 1
+    report_result("Deductive", board.is_solved(), board.occupancy(), iterations == max_iterations)
 
     return board

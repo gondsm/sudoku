@@ -220,7 +220,7 @@ class TestBacktrackSolver(unittest.TestCase):
     def test_generate_from_empty(self):
         """ If we solve an empty board, it should generate a solved board.
         """
-        generated_board = solvers._backtrack()
+        generated_board = solvers._backtrack(GameBoard(), 1000000)
         self.assertTrue(generated_board.is_solved())
 
     def test_solve_from_partial(self):
@@ -233,7 +233,7 @@ class TestBacktrackSolver(unittest.TestCase):
         """
         board = GameBoard()
         board.initialise_board(partial_board_1)
-        solved_board = solvers._backtrack(board)
+        solved_board = solvers._backtrack(board, 1000)
 
         self.assertTrue(solved_board.is_solved())
         self.assertEqual(board._board, partial_board_1)
