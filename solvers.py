@@ -145,7 +145,7 @@ def _deductive(input_board, max_iterations):
     report_start("Deductive", board.occupancy())
 
     # We'll keep the pencilled-in numbers here
-    pencil_board = defaultdict(list)
+    pencil_board = defaultdict(set)
     valid_values = board._valid_values
 
     # Sub-functions
@@ -162,22 +162,25 @@ def _deductive(input_board, max_iterations):
                     # ... if it works, it's a possible value
                     if board.is_valid():
                         key = (i, j)
-                        pencil_board[key].append(val)
+                        pencil_board[key].add(val)
 
                     # And then remove it again
                     board.erase(i, j)
+
+    # Start by pencilling in all possibilities
+    generate_pencil_board()
 
     iterations = 0
     while iterations < max_iterations and not board.is_solved():
         iterations += 1
         report_progress("Deductive", iterations, max_iterations)
-        generate_pencil_board()
 
         # Iterate over the pencilled board
         for (i, j), values in pencil_board.items():
             # If there's only one possible value for a given cell, we write it in
             if len(values) == 1:
-                board.value(i, j, values[0])
+                board.value(i, j, list(values)[0])
+                pencil_board[(i, j)] = []
                 continue
 
             # If the current value is the only possible position for this value in this sub-board, we write it in
@@ -194,6 +197,7 @@ def _deductive(input_board, max_iterations):
                 # Write the value in and break early since we won't have another value for the current cell
                 if only_possibility_in_sub_board:
                     board.value(i, j, value)
+                    pencil_board[(i, j)].remove(value)
                     break
 
     report_result("Deductive", board.is_solved(), board.occupancy(), iterations == max_iterations)
