@@ -65,6 +65,7 @@ class TestGameBoard(unittest.TestCase):
         board.initialise_board(valid_board)
 
         self.assertTrue(board.is_solved())
+        self.assertEqual(board.occupancy(), 1.0)
 
     def test_repeated_value(self):
         """ A board with a repeated value should not be valid.
@@ -274,7 +275,11 @@ class TestCombinedSolvers(unittest.TestCase):
         board.initialise_board(partial_board_3)
         intermediate_board = solvers._deductive(board, 1000)
 
+        # The deductive solved should be unable to solve the problem, but should return a valid board.
         self.assertFalse(intermediate_board.is_solved())
+        self.assertLess(intermediate_board.occupancy(), 1.0)
+        self.assertTrue(intermediate_board.is_valid())
+        self.assertFalse(intermediate_board.is_complete())
 
         solved_board = solvers._backtrack(intermediate_board, 10000)
         self.assertTrue(solved_board.is_solved())

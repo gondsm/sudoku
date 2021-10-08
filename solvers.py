@@ -105,7 +105,7 @@ def _backtrack(input_board, max_iterations):
     # * If the value is out of bounds, we backtrack to the previous element we were looking at.
     # * If the board is not valid, we increment the current value.
     # If none of these clauses get triggered, we simply move on to the next cell.
-    while not board.is_solved() and iterations < max_iterations:
+    while not board.is_solved() and iterations < max_iterations and current_cell_idx < 81:
         iterations += 1
         curr_value = get_current_value()
         report_progress("Backtrack", iterations, max_iterations)
@@ -156,22 +156,29 @@ def _deductive(input_board, max_iterations):
             if board.value(i, j) == None:
                 # Iterate over all valid values
                 for val in valid_values:
-                    # Try adding it...
-                    board.value(i, j, val)
-
-                    # ... if it works, it's a possible value
-                    if board.is_valid():
+                    # Try adding, if it works it's a possible value
+                    if try_adding_value(i, j, val):
                         key = (i, j)
                         pencil_board[key].add(val)
+                        board.erase(i, j)
 
-                    # And then remove it again
-                    board.erase(i, j)
+    def try_adding_value(i, j, value):
+        """ Adds a value to the board only if the resulting board is valid.
+
+        Returns whether the value stuck.
+        """
+        board.value(i, j, value)
+        if not board.is_valid():
+            board.erase(i, j)
+            return False
+
+        return True
 
     # Start by pencilling in all possibilities
     generate_pencil_board()
 
     iterations = 0
-    while iterations < max_iterations and not board.is_solved():
+    while iterations < max_iterations and not board.is_solved() and len(pencil_board) > 0:
         iterations += 1
         report_progress("Deductive", iterations, max_iterations)
 
@@ -179,7 +186,9 @@ def _deductive(input_board, max_iterations):
         for (i, j), values in pencil_board.items():
             # If there's only one possible value for a given cell, we write it in
             if len(values) == 1:
-                board.value(i, j, list(values)[0])
+                # TODO: why would this not be valid?
+                # TODO: surely we can get stuff from the set without making it into a list
+                try_adding_value(i, j, list(values)[0])
                 pencil_board[(i, j)] = []
                 continue
 
