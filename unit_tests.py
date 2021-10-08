@@ -23,7 +23,7 @@ class TestGameBoard(unittest.TestCase):
         """ A simple, complete and valid board should be considered solved.
         """
         board = GameBoard()
-        board._board = copy.deepcopy(self.valid_board)
+        board.initialise_board(self.valid_board)
 
         self.assertTrue(board.is_solved())
 
@@ -31,7 +31,7 @@ class TestGameBoard(unittest.TestCase):
         """ A board with a repeated value should not be valid.
         """
         board = GameBoard()
-        board._board = copy.deepcopy(self.valid_board)
+        board.initialise_board(self.valid_board)
         board.value(0, 0, 2)
 
         self.assertFalse(board.is_valid())
@@ -40,7 +40,7 @@ class TestGameBoard(unittest.TestCase):
         """ A board with an out-of-range value should not be valid.
         """
         board = GameBoard()
-        board._board = copy.deepcopy(self.valid_board)
+        board.initialise_board(self.valid_board)
         board.value(1, 1, 10)
 
         self.assertFalse(board.is_valid())
@@ -49,7 +49,7 @@ class TestGameBoard(unittest.TestCase):
         """ A board that is missing an element should not be considered complete.
         """
         board = GameBoard()
-        board._board = copy.deepcopy(self.valid_board)
+        board.initialise_board(self.valid_board)
         board.erase(0, 0)
 
         self.assertFalse(board.is_complete())
@@ -203,7 +203,7 @@ class TestSolvers(unittest.TestCase):
         The original board should remain unchanged, which is useful e.g. for benchmarking solvers.
         """
         board = GameBoard()
-        board._board = copy.deepcopy(self.partial_board)
+        board.initialise_board(self.partial_board)
         solved_board = solvers._backtrack(board)
 
         self.assertTrue(solved_board.is_solved)

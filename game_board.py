@@ -12,17 +12,39 @@ class GameBoard:
 
     # Constants
     _board_size = 9
+    _n_board_cells = _board_size ** 2
     _sub_board_size = 3
     _valid_values = list(range(1, 10))
 
     def __init__(self):
+        """ Construct a new board.
+
+        A few members are declared here, since being mutable means that they'll be shared among instances and no one
+        wants that crap.
+        """
         # Initialise the board itself as empty
         self._board = [
                 [None, None, None, None, None, None, None, None, None] for i in range(9)
             ]
 
+        self._occupied_cells = set()
+
         # Initialise the list of fixed positions as empty as well
         self._fixed_positions = []
+
+    def initialise_board(self, board):
+        """ Initialise the internal board from the given board.
+
+        This allows us to set an initial board without directly accessing self._board from outside the class, which
+        ensures we can keep track of what's occupied and what isn't.
+        """
+        # Copy the board in
+        self._board = copy.deepcopy(board)
+
+        # Mark all occupied cells as such
+        for i, j in self.board_iterator():
+            if self.value(i, j) != None:
+                self._occupied_cells.add((i, j))
 
     def board_iterator(self):
         """ Returns an iterator that goes over the whole board.
@@ -91,7 +113,8 @@ class GameBoard:
 
         Only initialises n_elems elements, in random positions.
         fixed indicates whether the initialised values should then be considered fixed positions.
-        Not guaranteed to be a valid solution.
+
+        Not guaranteed to be a valid solution. Almost guaranteed not to be a valid solution.
         """
         for val, (i, j) in enumerate(self.random_board_iterator()):
             if val >= n_elems:
@@ -112,6 +135,7 @@ class GameBoard:
         """
         if value != None :
             self._board[i][j] = value
+            self._occupied_cells.add((i, j))
 
         return copy.copy(self._board[i][j])
 
@@ -125,46 +149,40 @@ class GameBoard:
 
         Will not do anything if the cell is empty. Does not check whether the new value is valid.
         """
-        if self._board[i][j] != None:
-            self._board[i][j] = self._board[i][j] + 1
+        if self.value(i, j) != None:
+            self.value(i, j, self.value(i, j ) + 1)
 
     def erase(self, i, j):
-        """ Erases a certain value.
+        """ Erases the given cell.
         """
         self._board[i][j] = None
 
+        try:
+            self._occupied_cells.remove((i, j))
+        except KeyError:
+            pass
+
     def erase_random(self):
         """ Erases a random value from the board.
-
-        TODO: There's probably more efficient ways to implement this functionality.
         """
         # Let's not even try if there is nothing in the board.
         if self.occupancy() == 0:
             return
 
-        # Explicitly look for an occupied element to erase.
-        val = None
-        while val == None:
-            i, j = self.random_board_iterator().__next__()
-            val = self.value(i, j)
-
+        i, j = random.choice(list(self._occupied_cells))
         self.erase(i, j)
 
     def is_solved(self):
         """ Returns whether the current board is solved.
 
-        A solved board is both complete (is all filled in) and valid (not invalid).
+        A solved board is both complete (all filled in) and valid (not invalid).
         """
         return self.is_complete() and self.is_valid()
 
     def is_complete(self):
         """ Returns whether the current board is complete
         """
-        for i, j in self.board_iterator():
-            if self.value(i, j) == None:
-                return False
-
-        return True
+        return len(self._occupied_cells) == self._n_board_cells
 
     def is_valid(self):
         """ Returns whether the current board is valid.
@@ -193,17 +211,8 @@ class GameBoard:
     def occupancy(self):
         """ Returns the fraction of the total size of the board that is filled in.
         """
-        # Total number of cells
-        total = self._board_size ** 2
-
-        # Compute number of occupied cells
-        # TODO: there are certainly better ways to do this.
-        occupied = 0
-        for i, j in self.board_iterator():
-            if self.value(i, j) != None:
-                occupied += 1
-
-        return occupied/total
+        # Occupancy is the fraction of occupied cells in the complete board.
+        return len(self._occupied_cells)/(self._n_board_cells)
 
     def printable(self):
         """ Generates a neat string that represents the board
